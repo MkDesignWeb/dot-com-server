@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 
 const PunchSchema = new mongoose.Schema({
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "employee", required: true },
+    employeeName: { type: String, required: true },
     timeStamp: { type: Date, required: true },
   }
 );

@@ -13,8 +13,13 @@ class employeeService {
             typeof password !== "string"
         ) {
             throw new Error(
-                "Invalid input. Expect name:string, companny:number, password:string, workingHours:number"
+                "Invalid input. Expect name:string, companny:number, password:string"
             );
+        }
+
+        const existing = await employeeRepository.findByName(name);
+        if (existing) {
+            throw new Error(`O funcionário(a) '${name}' já existe`);
         }
 
         const hashed = await bcrypt.hash(password, 10);
@@ -72,7 +77,7 @@ class employeeService {
             throw new Error('Employee not found');
         }
 
-        const result = await punchRepository.set(id, new Date(date));
+        const result = await punchRepository.set(id, employee.name, new Date(date));
         return { message: 'Punch set successfully', result };
     }
 }

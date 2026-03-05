@@ -6,7 +6,7 @@ class UserRepository{
   }
 
   async findBynName(name: string) {
-    return await UserSchema.findOne({ name });
+    return await UserSchema.findOne({ name: { $regex: `^${name}$`, $options: 'i' } });
   }
 
   async create(data: { name: string; password: string }) {

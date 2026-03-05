@@ -15,6 +15,10 @@ class EmployeeRepository {
     return await employeeModel.findById(id);
   }
 
+  async findByName(name: string) {
+    return await employeeModel.findOne({ name: new RegExp('^' + name + '$', 'i') });
+  }
+
   async delete(id: string) {
     return await employeeModel.findByIdAndDelete(id);
   }
