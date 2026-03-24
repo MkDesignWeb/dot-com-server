@@ -1,17 +1,22 @@
-import UserSchema from "../models/user.model";
+import { prisma } from "../data/data.config";
 
-class UserRepository{
+class UserRepository {
   async list() {
-    return await UserSchema.find();
+    return await prisma.user.findMany();
   }
 
   async findBynName(name: string) {
-    return await UserSchema.findOne({ name: { $regex: `^${name}$`, $options: 'i' } });
+    // SQLite findFirst is case-sensitive by default with Prisma.
+    // For a simple migration, we'll use exact match.
+    return await prisma.user.findFirst({
+      where: { name: name }
+    });
   }
 
   async create(data: { name: string; password: string }) {
-    const newUser = new UserSchema(data);
-    return await newUser.save();
+    return await prisma.user.create({
+      data: data
+    });
   }
 }
 

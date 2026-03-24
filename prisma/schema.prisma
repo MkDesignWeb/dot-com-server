@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  companny      String
+  password      String
+  admissionDate DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  punches       Punch[]
+  dayStatuses   PunchDayStatus[]
+}
+
+model Punch {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int?
+  employeeName String
+  timeStamp    DateTime
+  employee     Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+}
+
+model PunchDayStatus {
+  id                              Int       @id @default(autoincrement())
+  employeeId                      Int
+  date                            DateTime
+  status                          String
+  medicalCertificatePresentedAt   DateTime?
+  medicalCertificateStartDate     DateTime?
+  medicalCertificateEndDate       DateTime?
+  medicalCertificateSource        String?
+  medicalCertificateNote          String?
+  medicalCertificateApproved      Boolean?
+  createdAt                       DateTime  @default(now())
+  updatedAt                       DateTime  @updatedAt
+  employee                        Employee  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([employeeId, date])
+}

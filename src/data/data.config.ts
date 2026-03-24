@@ -1,16 +1,16 @@
-import mongoose from "mongoose";
+import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+export const prisma = new PrismaClient();
 
 export async function connectDB() {
   try {
-    const mongoUri = process.env.MONGO_URI;
-    if (!mongoUri) {
-      throw new Error("MONGO_URI environment variable is not defined");
-    }
-    await mongoose.connect(mongoUri, { appName: "dot-com-server", dbName: "dot-com-db" });
-
-    console.log("✅ MongoDB conectado");
+    await prisma.$connect();
+    console.log("✅ SQLite (Prisma) conectado");
   } catch (error) {
-    console.error("❌ Erro ao conectar MongoDB:", error);
+    console.error("❌ Erro ao conectar SQLite (Prisma):", error);
     process.exit(1);
   }
 }

@@ -8,14 +8,16 @@ export interface User {
 export interface Employee {
   id: number;
   name: string;
-  companny: number;
+  companny: string;
   password: string;
+  admissionDate: Date;
 }
 
 export interface CreateEmployeeDTO {
   name: string;
-  companny: number;
+  companny: string;
   password: string;
+  admissionDate: string | Date;
 }
 
 export interface LoginDTO {

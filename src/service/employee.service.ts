@@ -5,15 +5,16 @@ import punchRepository from "../repository/punch.repository";
 
 class employeeService {
     async create(data: CreateEmployeeDTO) {
-        const { name, companny, password } = data;
+        const { name, companny, password, admissionDate } = data;
 
         if (
             typeof name !== "string" ||
-            typeof companny !== "number" ||
-            typeof password !== "string"
+            typeof companny !== "string" ||
+            typeof password !== "string" ||
+            !admissionDate
         ) {
             throw new Error(
-                "Invalid input. Expect name:string, companny:number, password:string"
+                "Invalid input. Expect name:string, companny:string, password:string, admissionDate:string|Date"
             );
         }
 
@@ -27,19 +28,19 @@ class employeeService {
         const employee = {
             name,
             companny,
-            password: hashed
+            password: hashed,
+            admissionDate: (() => {
+                const [y, m, d] = String(admissionDate).split('-').map(Number);
+                return new Date(y, m - 1, d);
+            })()
         };
 
         const savedEmployee = await employeeRepository.create(employee);
-
-        const { password: _, ...rest } = savedEmployee.toObject();
+        const { password: _, ...rest } = savedEmployee;
         return rest;
     }
 
-    async findById(id: string) {
-        if (typeof id !== "string") {
-            throw new Error("Invalid input. Expect id: string");
-        }
+    async findById(id: string | number) {
         const employee = await employeeRepository.findById(id);
         if (!employee) {
             throw new Error('Employee not found');
@@ -48,30 +49,35 @@ class employeeService {
     }
 
     async list() {
-          const employees = await employeeRepository.list();
-          const safe = employees.map(u => ({ id: u.id, name: u.name, companny: u.companny }));
-          return safe;
+        const employees = await employeeRepository.list();
+        const safe = employees.map(u => {
+            const date = new Date(u.admissionDate);
+            // Se a data for exatamente meia-noite UTC (comum em dados legados ou do SQLite),
+            // adicionamos 12 horas para garantir que ela permaneça no mesmo dia em qualquer fuso.
+            if (date.getUTCHours() === 0) {
+                date.setUTCHours(12);
+            }
+            return {
+                id: u.id,
+                name: u.name,
+                companny: u.companny,
+                admissionDate: date
+            };
+        });
+        return safe;
     }
 
-    async delete(id: string) {
-        if (typeof id !== "string") {
-            throw new Error("Invalid input. Expect id:string");
-        }
-        
-          const employees = await employeeRepository.findById(id);
-          if (!employees) {
+    async delete(id: string | number) {
+        const employees = await employeeRepository.findById(id);
+        if (!employees) {
             throw new Error('Employee not found');
-          }
-        
-          await employeeRepository.delete(id);
-          return { message: 'Employee deleted successfully' };
-    }
-
-    async setPunch(id: string, date: string) {
-        if (typeof id !== "string" || typeof date !== "string") {
-            throw new Error("Invalid input. Expect id:string, date:string");
         }
 
+        await employeeRepository.delete(id);
+        return { message: 'Employee deleted successfully' };
+    }
+
+    async setPunch(id: string | number, date: string) {
         const employee = await this.findById(id);
         if (!employee) {
             throw new Error('Employee not found');

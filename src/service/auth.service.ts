@@ -42,8 +42,8 @@ class userService {
         const hashed = await bcrypt.hash(password, 10);
 
         const newUser = await userRepository.create({ name, password: hashed });
-        const token = jwt.sign({ id: newUser._id, name: newUser.name }, process.env.JWT_SECRET || 'changeme', { expiresIn: '1m' });
-        return { token, user: { id: newUser._id, name: newUser.name } };
+        const token = jwt.sign({ id: newUser.id, name: newUser.name }, process.env.JWT_SECRET || 'changeme', { expiresIn: '1m' });
+        return { token, user: { id: newUser.id, name: newUser.name } };
     }
 }
 

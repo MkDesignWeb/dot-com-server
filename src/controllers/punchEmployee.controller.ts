@@ -51,6 +51,17 @@ export const updatePunchEmployee = async (req: Request, res: Response) => {
   }
 };
 
+export const updatePunchDayStatus = async (req: Request, res: Response) => {
+  const { employeeId, date, status, medicalCertificate } = req.body;
+
+  try {
+    const result = await punchService.updateDayStatus(employeeId, date, status, medicalCertificate);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 export const deletePunchEmployee = async (req: Request, res: Response) => {
   const { punchId } = req.params;
 
